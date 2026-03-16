@@ -13,3 +13,22 @@ This agent uses a locally deployed Qwen Code API proxy to answer user queries. I
 1. Ensure you have Python 3.8+ and install dependencies:
    ```bash
    pip install openai
+## Tools
+The agent now supports two tools for accessing the project repository:
+
+- `read_file(path)`: reads a file and returns its content.
+- `list_files(path)`: lists entries in a directory.
+
+Both tools are protected against path traversal attacks: any request to a path outside the project root is rejected.
+
+## Agentic Loop
+The agent performs a multi-step loop:
+1. Sends the user query along with the tool definitions.
+2. If the LLM requests tool calls, they are executed and their results are fed back.
+3. The loop continues until a final answer without tool calls is received.
+
+## Output Format
+The agent returns a JSON object with:
+- `answer`: the final answer.
+- `source`: the path of the last file read (if any), otherwise `null`.
+- `tool_calls`: an array of all tool invocations (each with `name` and `arguments`).
