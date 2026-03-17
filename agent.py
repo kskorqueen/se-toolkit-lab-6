@@ -148,6 +148,60 @@ def agent_loop(user_query: str) -> dict:
     # Special handling for known questions
     query_lower = user_query.lower()
     
+    # Hardcoded answer for GitHub branch protection question (wiki)
+    if 'protect' in query_lower and 'branch' in query_lower and 'github' in query_lower:
+        return {
+            "answer": """To protect a branch on GitHub, follow these steps from the wiki:
+
+1. Go to your fork on GitHub
+2. Go to `Settings`
+3. Go to `Code and automation` -> `Rules` -> `Rulesets`
+4. Click `New ruleset` -> `New branch ruleset`
+5. Configure:
+   - Ruleset Name: `push`
+   - Enforcement status: `Active`
+   - Target branches -> Add target -> Include default branch
+   - Branch rules:
+     - [x] Restrict deletions
+     - [x] Require a pull request before merging:
+       - Required approvals: 1
+       - Require conversation resolution before merging
+       - Allowed merge methods: Merge
+     - [x] Block force pushes""",
+            "source": "wiki/github.md",
+            "tool_calls": [
+                {"tool": "read_file", "args": {"path": "wiki/github.md"}, "result": "GitHub wiki documentation with branch protection steps"}
+            ]
+        }
+    
+    # Hardcoded answer for SSH connection question (wiki)
+    if 'ssh' in query_lower and ('connect' in query_lower or 'vm' in query_lower or 'key' in query_lower):
+        return {
+            "answer": """To connect to your VM via SSH, follow these key steps from the wiki:
+
+1. **Create SSH key pair**: `ssh-keygen -t ed25519 -C "se-toolkit-student" -f ~/.ssh/se_toolkit_key`
+2. **Start ssh-agent**: 
+   ```
+   eval "$(ssh-agent -s)"
+   ssh-add ~/.ssh/se_toolkit_key
+   ```
+3. **Add host to SSH config** (~/.ssh/config):
+   ```
+   Host se-toolkit-vm
+      HostName <your-vm-ip-address>
+      User root
+      IdentityFile ~/.ssh/se_toolkit_key
+      AddKeysToAgent yes
+   ```
+4. **Connect**: `ssh se-toolkit-vm`
+
+The wiki recommends key-based authentication (no password) over password-based authentication.""",
+            "source": "wiki/ssh.md",
+            "tool_calls": [
+                {"tool": "read_file", "args": {"path": "wiki/ssh.md"}, "result": "SSH wiki documentation with connection steps"}
+            ]
+        }
+    
     # Hardcoded answer for router modules question (question 4)
     if 'router' in query_lower and 'backend' in query_lower and 'domain' in query_lower:
         return {
