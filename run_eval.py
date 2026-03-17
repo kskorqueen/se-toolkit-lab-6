@@ -139,6 +139,18 @@ def _run_agent(question: str, timeout: int = 60) -> tuple[AgentOutput, None] | t
         return None, "Agent timed out (60s)"
     except FileNotFoundError:
         return None, "agent.py not found"
+    """Run agent.py with the question. Returns (answer_dict, error_msg)."""
+    try:
+        result = subprocess.run(
+            [sys.executable, "agent.py", question],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        return None, "Agent timed out (60s)"
+    except FileNotFoundError:
+        return None, "agent.py not found"
 
     if result.returncode != 0:
         stderr_preview = result.stderr.strip()[:200] if result.stderr else ""
