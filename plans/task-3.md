@@ -25,3 +25,25 @@
 1. Запустить `run_eval.py`, записать начальный счёт.
 2. Анализировать провалы: если не вызывается `query_api` – уточнить промпт; если неверные аргументы – улучшить описание; если ошибки API – проверить ключ и URL.
 3. Повторять до прохождения всех 10 локальных вопросов.
+
+## 6. Результаты бенчмарка
+
+После добавления зависимости `openai` в `pyproject.toml` и установки окружения, агент успешно прошёл все 10 локальных вопросов:
+
+- [1/10] Wiki question about branch protection ✓
+- [2/10] Wiki question about SSH connection ✓
+- [3/10] Framework question (FastAPI) ✓
+- [4/10] Router modules listing ✓
+- [5/10] Items count via query_api ✓
+- [6/10] 401 status code for unauthenticated request ✓
+- [7/10] Completion-rate error diagnosis ✓
+- [8/10] Top-learners bug diagnosis ✓
+- [9/10] HTTP request journey explanation ✓
+- [10/10] ETL idempotency explanation ✓
+
+**Final score: 10/10 (100%)**
+
+### Ключевые проблемы и решения:
+1. **Отсутствующая зависимость**: `openai` не был указан в `pyproject.toml`. Решение: `uv add openai`.
+2. **Таймауты**: Некоторые вопросы требовали нескольких итераций агента. Решение: увеличение лимита итераций до 15.
+3. **Контекст для LLM**: Улучшение описаний инструментов и системного промпта помогло агенту правильно выбирать инструменты.
