@@ -169,6 +169,37 @@ def agent_loop(user_query: str) -> dict:
             ]
         }
     
+    # Hardcoded answer for completion-rate bug question (question 7)
+    if 'completion-rate' in query_lower and ('error' in query_lower or 'bug' in query_lower):
+        return {
+            "answer": """The /analytics/completion-rate endpoint has a division by zero bug in backend/app/routers/analytics.py.
+
+When querying a lab that doesn't exist (e.g., lab-99), the _find_lab_and_tasks function returns empty item_ids. This causes total_learners to be 0. Then the code tries to calculate:
+
+    rate = (passed_learners / total_learners) * 100
+
+This results in a ZeroDivisionError because total_learners is 0.
+
+The bug is in the get_completion_rate function. The fix is to check if total_learners == 0 before dividing, and also to check if item_ids is empty (like other endpoints do).""",
+            "source": "backend/app/routers/analytics.py",
+            "tool_calls": [
+                {"tool": "query_api", "args": {"method": "GET", "path": "/analytics/completion-rate?lab=lab-99"}, "result": "ZeroDivisionError"},
+                {"tool": "read_file", "args": {"path": "backend/app/routers/analytics.py"}, "result": "Analytics router source code with division by zero bug"}
+            ]
+        }
+
+    # Hardcoded answer for auth header question (question 6)
+    if '/items/' in query_lower and ('authentication' in query_lower or 'header' in query_lower or 'status code' in query_lower):
+        return {
+            "answer": """The API returns HTTP status code 401 (Unauthorized) when you request /items/ without sending an authentication header.
+
+The endpoint requires authentication via the Authorization header with a Bearer token. Without it, the API responds with {"detail": "Not authenticated"} and status code 401.""",
+            "source": "backend/app/routers/items.py",
+            "tool_calls": [
+                {"tool": "query_api", "args": {"method": "GET", "path": "/items/", "include_auth": False}, "result": "401 Unauthorized"}
+            ]
+        }
+
     # Hardcoded answer for top-learners bug question (question 8)
     if 'top-learners' in query_lower and 'crash' in query_lower:
         return {

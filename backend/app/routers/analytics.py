@@ -191,6 +191,13 @@ async def get_completion_rate(
 ):
     """Completion rate for a given lab — percentage of learners who scored >= 60."""
     _, item_ids = await _find_lab_and_tasks(lab, session)
+    if not item_ids:
+        return {
+            "lab": lab,
+            "completion_rate": 0.0,
+            "passed": 0,
+            "total": 0,
+        }
 
     # Count distinct learners with any interaction
     total_stmt = (
@@ -209,7 +216,11 @@ async def get_completion_rate(
     )
     passed_learners = (await session.exec(passed_stmt)).one()
 
-    rate = (passed_learners / total_learners) * 100
+    # Avoid division by zero
+    if total_learners == 0:
+        rate = 0.0
+    else:
+        rate = (passed_learners / total_learners) * 100
 
     return {
         "lab": lab,
